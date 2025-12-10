@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat App UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    /* ---------- RESET ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    /* ---------- MAIN CONTAINER ---------- */
+    .chat-wrapper {
+      background: #020617;
+      width: 100%;
+      max-width: 1100px;
+      height: 90vh;
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      border: 1px solid rgba(148,163,184,0.3);
+    }
+
+    /* ---------- SIDEBAR ---------- */
+    .sidebar {
+      width: 28%;
+      background: radial-gradient(circle at top left, #1e293b, #020617);
+      border-right: 1px solid rgba(148,163,184,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(148,163,184,0.3);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #0b1120;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34,197,94,0.8);
+    }
+
+    .search-box {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(148,163,184,0.15);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+
+    .search-box input::placeholder {
+      color: #9ca3af;
+    }
+
+    .chat-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .chat-item {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    .chat-item:hover {
+      background: rgba(15,23,42,0.8);
+      transform: translateY(-1px);
+    }
+
+    .chat-item.active {
+      background: linear-gradient(135deg, rgba(59,130,246,0.4), rgba(14,165,233,0.1));
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .avatar.me {
+      background: #22c55e;
+      color: #022c22;
+    }
+
+    .chat-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .chat-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .chat-time {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .chat-last-msg {
+      font-size: 12px;
+      color: #9ca3af;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge {
+      min-width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #22c55e;
+      color: #022c22;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    /* ---------- CHAT AREA ---------- */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at top right, #0f172a, #020617);
+    }
+
+    .chat-area-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(148,163,184,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-area-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-area-user .avatar {
+      width: 38px;
+      height: 38px;
+    }
+
+    .chat-area-user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-area-user-info span:first-child {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .chat-area-user-info span:last-child {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .chat-area-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      background: transparent;
+      color: #e5e7eb;
+      transition: background 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(15,23,42,0.9);
+      transform: translateY(-1px);
+      border-color: #60a5fa;
+    }
+
+    /* ---------- MESSAGES ---------- */
+    .chat-messages {
+      flex: 1;
+      padding: 16px 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .date-divider {
+      text-align: center;
+      font-size: 11px;
+      color: #9ca3af;
+      margin: 4px 0 6px;
+      position: relative;
+    }
+
+    .date-divider::before,
+    .date-divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 30%;
+      height: 1px;
+      background: rgba(148,163,184,0.3);
+    }
+
+    .date-divider::before {
+      left: 0;
+    }
+    .date-divider::after {
+      right: 0;
+    }
+
+    .message-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .message-row.me {
+      justify-content: flex-end;
+    }
+
+    .message-bubble {
+      max-width: 70%;
+      padding: 10px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.4;
+      position: relative;
+    }
+
+    .message-row.me .message-bubble {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message-row.them .message-bubble {
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(148,163,184,0.4);
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-meta {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .message-status {
+      font-size: 11px;
+    }
+
+    /* ---------- INPUT AREA ---------- */
+    .chat-input-area {
+      border-top: 1px solid rgba(148,163,184,0.35);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(15,23,42,0.96);
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-tools {
+      display: flex;
+      gap: 6px;
+    }
+
+    .pill-btn {
+      border-radius: 999px;
+      border: 1px dashed rgba(148,163,184,0.5);
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      background: transparent;
+      color: #e5e7eb;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .pill-btn span {
+      opacity: 0.8;
+      margin-right: 4px;
+    }
+
+    .pill-btn:hover {
+      background: rgba(15,23,42,0.9);
+      border-color: #60a5fa;
+      transform: translateY(-1px);
+    }
+
+    .chat-input {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15,23,42,0.9);
+      border-radius: 999px;
+      padding: 6px 10px 6px 14px;
+      border: 1px solid rgba(148,163,184,0.5);
+    }
+
+    .chat-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: #e5e7eb;
+      font-size: 13px;
+    }
+
+    .chat-input input::placeholder {
+      color: #9ca3af;
+    }
+
+    .send-btn {
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #3b82f6, #22c55e);
+      color: #0b1120;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 6px 14px rgba(56,189,248,0.5);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
+    }
+
+    .send-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(56,189,248,0.6);
+      filter: brightness(1.05);
+    }
+
+    .send-btn:active {
+      transform: translateY(1px) scale(0.97);
+      box-shadow: 0 4px 10px rgba(56,189,248,0.4);
+    }
+
+    .typing-indicator {
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dots {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: #9ca3af;
+      opacity: 0.6;
+    }
+
+    /* ---------- SCROLLBAR ---------- */
+    .chat-list::-webkit-scrollbar,
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-list::-webkit-scrollbar-thumb,
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(148,163,184,0.5);
+      border-radius: 999px;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 900px) {
+      .chat-wrapper {
+        height: 92vh;
+      }
+      .sidebar {
+        display: none; /* only main chat on small screens */
+      }
+    }
+
+    @media (max-width: 600px) {
+      .chat-wrapper {
+        border-radius: 16px;
+      }
+
+      .chat-area-header {
+        padding: 10px 12px;
+      }
+
+      .chat-messages {
+        padding: 12px 10px;
+      }
+
+      .chat-input-area {
+        padding: 8px 10px;
+      }
+
+      .message-bubble {
+        max-width: 80%;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-wrapper">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">C</div>
+          <div class="logo-text">ChatFlow</div>
+        </div>
+        <div class="status-dot"></div>
+      </div>
+
+      <div class="search-box">
+        <input type="text" placeholder="Search chats or people..." />
+      </div>
+
+      <div class="chat-list">
+        <div class="chat-item active">
+          <div class="avatar">AI</div>
+          <div class="chat-info">
+            <div class="chat-name-row">
+              <span class="chat-name">ChatGPT Bot</span>
+              <span class="chat-time">Now</span>
+            </div>
+            <div class="chat-last-msg">Sure! I can help you design that UI…</div>
+          </div>
+          <div class="badge">3</div>
+        </div>
+
+        <div class="chat-item">
+          <div class="avatar">VS</div>
+          <div class="chat-info">
+            <div class="chat-name-row">
+              <span class="chat-name">Vishnu (You)</span>
+              <span class="chat-time">12:01</span>
+            </div>
+            <div class="chat-last-msg">Let’s deploy it this weekend.</div>
+          </div>
+        </div>
+
+        <div class="chat-item">
+          <div class="avatar">JS</div>
+          <div class="chat-info">
+            <div class="chat-name-row">
+              <span class="chat-name">JS Group</span>
+              <span class="chat-time">Yesterday</span>
+            </div>
+            <div class="chat-last-msg">We will use React + Node…</div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="chat-area">
+      <!-- Header -->
+      <header class="chat-area-header">
+        <div class="chat-area-user">
+          <div class="avatar">AI</div>
+          <div class="chat-area-user-info">
+            <span>ChatGPT Bot</span>
+            <span>Online · Responding instantly</span>
+          </div>
+        </div>
+        <div class="chat-area-actions">
+          <button class="icon-btn" title="Search">🔍</button>
+          <button class="icon-btn" title="More">⋮</button>
+        </div>
+      </header>
+
+      <!-- Messages -->
+      <section class="chat-messages">
+        <div class="date-divider">Today</div>
+
+        <div class="message-row me">
+          <div class="message-bubble">
+            Hey! I want to build a chat UI using only HTML and CSS.
+            <div class="message-meta">
+              <span>14:02</span>
+              <span class="message-status">✔✔</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="message-row them">
+          <div class="message-bubble">
+            Nice! I’ll help you create a modern, responsive layout that looks like a real chat app.
+            <div class="message-meta">
+              <span>14:03</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="message-row them">
+          <div class="message-bubble">
+            We’ll have a sidebar with chats and a main area with messages and an input box at the bottom.
+            <div class="message-meta">
+              <span>14:03</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="message-row me">
+          <div class="message-bubble">
+            Perfect, and it should look good on mobile also.
+            <div class="message-meta">
+              <span>14:04</span>
+              <span class="message-status">✔✔</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Input -->
+      <footer class="chat-input-area">
+        <div class="input-row">
+          <div class="input-tools">
+            <button class="pill-btn"><span>➕</span>New</button>
+            <button class="pill-btn"><span>📎</span>Attach</button>
+          </div>
+        </div>
+
+        <div class="input-row">
+          <div class="chat-input">
+            <input type="text" placeholder="Type a message..." />
+            <button class="icon-btn" title="Emoji">😊</button>
+          </div>
+          <button class="send-btn" title="Send">➤</button>
+        </div>
+
+        <div class="typing-indicator">
+          ChatGPT is typing
+          <span class="dots">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </span>
+        </div>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
